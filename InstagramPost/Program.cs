@@ -7,6 +7,10 @@ namespace InstagramPosts
     {
         public static void Main()
         {
+            Application appication=new Application();
+
+
+
             Post post = new Post("First Post");
 
             post.DisplayPost();
