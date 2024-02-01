@@ -8,6 +8,7 @@ namespace InstagramPost.Components
 {
     internal class User
     {
+        #region properties
         public int UserId { get; set; }
 
         public string UserName { get; set; }
@@ -15,13 +16,16 @@ namespace InstagramPost.Components
         public string Password { get; set; }
 
         public List<Post> posts { get; set; }
+
+        #endregion
+
+        #region Constructors
         public User(String UserName) 
         { 
             this.UserName=UserName; 
             posts = new List<Post>(); 
         }
 
-       
         public User(int userId, string userName, string password, List<Post> posts)
         {
             UserId = userId;
@@ -30,7 +34,21 @@ namespace InstagramPost.Components
             this.posts=posts;
 
         }
+        #endregion
 
+        #region Addpost
+        public void AddPost(Post post)
+        { posts.Add(post); }
+        #endregion
+
+        #region GetValues
+        public int GetUserId()
+        {
+            return this.UserId;
+        }
+        #endregion
+
+        #region ShowPosts
         public void ShowPosts()
         {
             Console.WriteLine("UserName : "+UserName);
@@ -63,7 +81,6 @@ namespace InstagramPost.Components
                             Console.WriteLine("You Enter Invalid index !!!! "); 
                             validIndex = false;
                         }
-
                 }
                 catch(Exception e) 
                 {
@@ -72,13 +89,6 @@ namespace InstagramPost.Components
                 }
             } while (!validIndex);
         }
-
-        public void AddPost(Post post)
-        { posts.Add(post); }
-
-        public int GetUserId()
-        {
-            return this.UserId;
-        }
+        #endregion
     }
 }

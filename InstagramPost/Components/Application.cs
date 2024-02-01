@@ -10,18 +10,24 @@ namespace InstagramPost.Components
 {
     internal class Application
     {
+        #region properties
         Data data;
         List<User> Users;
-        
+        #endregion
 
+        #region Constructor
         public Application(Data data) 
         {  
             Users = new List<User>();
             this.data = data;
         }
+        #endregion
 
+        #region Adduser
         public void AddUser(User user) { Users.Add(user);}
+        #endregion
 
+        #region StartApplication
         public void StartApplication()
         {
             Login login = new Login();
@@ -35,6 +41,6 @@ namespace InstagramPost.Components
             }
 
         }
-            
+        #endregion
     }
 }

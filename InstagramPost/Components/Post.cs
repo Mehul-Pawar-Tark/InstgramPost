@@ -10,6 +10,7 @@ namespace InstagramPost.Components
 {
     internal class Post
     {
+        #region properties
         String Link { get; set; }
 
         int AuthorId { get; set; }
@@ -17,15 +18,19 @@ namespace InstagramPost.Components
         String Media { get; set; }
 
         HashSet<int> Likes { get; set; }
+        
         HashSet<int> Dislikes { get; set; } 
         
         int TotalComments { get; set; }
+        
         int CommentId { get; set; }
 
         List<Comment> Comments { get; set; }
 
         Dictionary<int,Comment> CommentsWithID { get; set; }
+        #endregion
 
+        #region Constructors
         public Post()
         {
             Comments = new List<Comment>();
@@ -43,29 +48,43 @@ namespace InstagramPost.Components
             TotalComments = 0; CommentId = 0;
             Likes=new HashSet<int>(); Dislikes = new HashSet<int>();
         }
+        #endregion
 
-        #region DisplayPost
-        public void DisplayPost(int PostIndex)
+        #region Add Reply    
+        public void AddReply(int UserId)
         {
-            Console.WriteLine("-------------------------------------- PostIndex : "+PostIndex+" -----------------------------------------------\n\n");
-            Console.WriteLine("\t\t\t\tPost : " + this.Media);
-            Console.WriteLine("\t\t\t\tTotal Likes : " + Likes.Count);
-            Console.WriteLine("\t\t\t\tTotal DisLikes : " + Dislikes.Count);
-            Console.WriteLine("\n\nComments : " + TotalComments + "\n");
+            Comment comment = GetComment();
 
-            foreach (Comment comment in Comments)
+            if (comment.GetCommentID() != -1)
             {
-                comment.PrintComment();
+                int Hierarchy = comment.GetHierarchy() + 1;
+                if (Hierarchy > 4)
+                {
+                    Console.WriteLine("you can't add hierarchical 6th comment...");  //error msg
+                    Console.ReadLine();
+                }
+                else if (!comment.GetIsDeleted())
+                {
+                    comment.AddReplyofComment(GenerateComment(Hierarchy, UserId));
+                    comment.SetHasReply(true);
+                }
+                else
+                {
+                    Console.WriteLine("This Comment is Deleted you cant Reply it");   //error msg
+                    Console.ReadLine();
+                }
             }
-
-            Console.WriteLine("----------------------------------------------------------------------------------------------------");
-
-           // Reaction(PostIndex);
-
         }
         #endregion
 
-        #region Decision for Reaction
+        #region AddComment
+        public void AddComment(Comment comment)
+        {
+            this.Comments.Add(comment);
+        }
+        #endregion
+
+        #region Decision
         public int Decision()
         {
             Console.WriteLine("0. Exit               1. Add Comment          2. Add Reply");
@@ -86,134 +105,10 @@ namespace InstagramPost.Components
 
             if (decisionIndex < 0 || decisionIndex > 8)
             {
-                    Console.WriteLine("\nYou Enter Wrong Choice, try again......\n");
-                    return Decision();
+                Console.WriteLine("\nYou Enter Wrong Choice, try again......\n");
+                return Decision();
             }
-
-
             return decisionIndex;
-        }
-        #endregion
-
-        #region Reaction
-        public void Reaction(int PostIndex,int UserId)
-        {
-            int decisionIndex = Decision();
-
-            switch (decisionIndex)
-            {
-                case 1:
-                        AddComment(GenerateComment(0,UserId));   break;
-                case 2:
-                        AddReply(UserId); break;
-                case 3:
-                        Like(UserId);     break;
-                case 4:
-                        DisLike(UserId);  break;
-                case 5:
-                        DeleteComment(UserId);   break;
-                case 6:
-                        LikeComment(UserId); break;
-                case 7:
-                        DisLikeComment(UserId); break;
-                case 8:
-                        EditComment(UserId); break;
-            }
-
-            if (decisionIndex != 0)
-            {
-                Console.Clear();
-               // DisplayPost(PostIndex);
-            }
-
-        }
-        #endregion
-
-        #region Like Comment
-        public void LikeComment(int UserId)
-        { 
-            Comment comment = GetComment();
-            comment.Like(UserId);
-        }
-        #endregion
-
-        #region DisLike Comment
-        public void DisLikeComment(int UserId)
-        {
-            Comment comment = GetComment();
-            comment.DisLike(UserId);
-        }
-        #endregion
-
-        #region Edit Comment
-        public void EditComment(int UserId)
-        {
-            Comment comment = GetComment();
-
-            if(comment.GetCommentID()!=-1)
-                comment.EditComment(UserId);
-        }
-        #endregion
-
-        #region GetComment
-        public Comment GetComment()
-        {
-            int CommentId = 0;
-
-            bool IsValidId = true;
-            do
-            {
-                Console.Write("Enter CommentId : ");
-                try
-                {
-                    CommentId = Int32.Parse(Console.ReadLine());
-                    IsValidId = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    IsValidId = false;
-                }
-
-            } while (!IsValidId);
-
-            
-            if (CommentsWithID.ContainsKey(CommentId))
-            {
-                return CommentsWithID[CommentId];
-            }
-            else if(CommentId!=-1)
-            {
-                Console.WriteLine("this Comment is not Exist");     //error msg
-                GetComment();
-            }
-
-            return new Comment(-1);
-        }
-        #endregion
-
-        #region Add Reply    
-        public void AddReply(int UserId)
-        {
-                Comment comment = GetComment();
-
-                int Hierarchy = comment.GetHierarchy() + 1;
-
-                if(Hierarchy > 4) 
-                {
-                    Console.WriteLine("you can't add hierarchical 6th comment...");  //error msg
-                    Console.ReadLine();
-                }
-                else if (!comment.GetIsDeleted()) 
-                {
-                    comment.ReplyofComment(GenerateComment(Hierarchy,UserId));
-                    comment.SetHasReply(true);
-                }
-                else
-                {
-                    Console.WriteLine("This Comment is Deleted you cant Reply it");   //error msg
-                    Console.ReadLine();
-                }     
         }
         #endregion
 
@@ -250,7 +145,7 @@ namespace InstagramPost.Components
                         }
                         else if (comment.GetHasReply())
                         {
-                            comment.DeleteValues();
+                            comment.DeleteValuesOfComment();
                             comment.SetIsDeleted(true);
                             TotalComments--;
                         }
@@ -271,14 +166,55 @@ namespace InstagramPost.Components
 
         #endregion
 
-        #region GetvalueMethods
-        public int GetTotalComments()
+        #region DisLike Comment
+        public void DisLikeComment(int UserId)
         {
-            return this.TotalComments;
+            Comment comment = GetComment();
+            comment.DisLike(UserId);
+        }
+        #endregion
+
+        #region DisLike Post
+        public void DisLikePost(int UserId) 
+        {
+            if (!Dislikes.Contains(UserId))
+                Dislikes.Add(UserId);
+
+            Likes.Remove(UserId);
+        }
+        #endregion
+
+        #region Display Post
+        public void DisplayPost(int PostIndex)
+        {
+            Console.WriteLine("-------------------------------------- PostIndex : "+PostIndex+" -----------------------------------------------\n\n");
+            Console.WriteLine("\t\t\t\tPost : " + this.Media);
+            Console.WriteLine("\t\t\t\tTotal Likes : " + Likes.Count);
+            Console.WriteLine("\t\t\t\tTotal DisLikes : " + Dislikes.Count);
+            Console.WriteLine("\n\nComments : " + TotalComments + "\n");
+
+            foreach (Comment comment in Comments)
+            {
+                comment.PrintComment();
+            }
+
+            Console.WriteLine("----------------------------------------------------------------------------------------------------");
+
+        }
+        #endregion
+
+        #region Edit Comment
+        public void EditComment(int UserId)
+        {
+            Comment comment = GetComment();
+
+            if(comment.GetCommentID()!=-1)
+                comment.EditComment(UserId);
         }
         #endregion
 
         #region GenerateComment
+
         public Comment GenerateComment(int Hierarchy,int UserId)
         {
             String CommentText = "Initial Comment";
@@ -302,16 +238,62 @@ namespace InstagramPost.Components
 
         }
         #endregion
-        
-        #region AddComment
-        public void AddComment(Comment comment)
+       
+        #region Get Comment
+        public Comment GetComment()
         {
-            this.Comments.Add(comment);
+            int CommentId = 0;
+
+            bool IsValidId = true;
+            do
+            {
+                Console.Write("Enter CommentId : ");
+                try
+                {
+                    CommentId = Int32.Parse(Console.ReadLine());
+                    IsValidId = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    IsValidId = false;
+                }
+
+            } while (!IsValidId);
+
+            
+            if (CommentsWithID.ContainsKey(CommentId))
+            {
+                return CommentsWithID[CommentId];
+            }
+            else if(CommentId!=-1)
+            {
+                Console.WriteLine("this Comment is not Exist");     //error msg
+                GetComment();
+            }
+
+            return new Comment(-1);
+        }
+        #endregion
+        
+        #region GetTotalComments
+
+        public int GetTotalComments()
+        {
+            return this.TotalComments;
         }
         #endregion
 
+        #region Like Comment
+        public void LikeComment(int UserId)
+        { 
+            Comment comment = GetComment();
+            comment.LikeComment(UserId);
+        }
+        #endregion
+        
         #region Like Post
-        public void Like(int UserId)  
+        public void LikePost(int UserId)  
         {
             if(!Likes.Contains(UserId))
                 Likes.Add(UserId);
@@ -319,28 +301,38 @@ namespace InstagramPost.Components
             Dislikes.Remove(UserId);
         }
         #endregion
-
-        #region DisLike Post
-        public void DisLike(int UserId) 
+     
+        #region Reaction
+        public void Reaction(int PostIndex,int UserId)
         {
-            if (!Dislikes.Contains(UserId))
-                Dislikes.Add(UserId);
+            int decisionIndex = Decision();
 
-            Likes.Remove(UserId);
-        }
-        #endregion
+            switch (decisionIndex)
+            {
+                case 0: 
+                        Console.Clear(); break;
+                case 1:
+                        AddComment(GenerateComment(0,UserId));   break;
+                case 2:
+                        AddReply(UserId); break;
+                case 3:
+                        LikePost(UserId);     break;
+                case 4:
+                        DisLikePost(UserId);  break;
+                case 5:
+                        DeleteComment(UserId);   break;
+                case 6:
+                        LikeComment(UserId); break;
+                case 7:
+                        DisLikeComment(UserId); break;
+                case 8:
+                        EditComment(UserId); break;
+            }
 
-        #region Share
-        public void share()
-        {
-          // not implimented
-        }
-        #endregion
-
-        #region Save
-        public void Save()
-        {
-            //not implimented
+            if (decisionIndex != 0)
+            {
+                Console.Clear();
+            }
         }
         #endregion
 

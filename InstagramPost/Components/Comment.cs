@@ -11,18 +11,21 @@ namespace InstagramPost.Components
     {
         #region Properties
         Post OriginalPost { get; set; }
+
         String CommentText { get; set; }
-
+        
         int UserId { get; set; }
+        
         int CommentID { get; set; }
+        
         int Hierarchy { get; set; }
-        int likes { get; set; }
+        
         HashSet<int> Likes { get; set; }
-
+        
         HashSet<int> DisLikes { get; set; }
-        int disLikes { get; set; }
 
         bool IsDeleted { get; set; }
+        
         bool HasReply { get; set; }
 
         List<Comment> Replies { get; set; }
@@ -31,6 +34,7 @@ namespace InstagramPost.Components
 
         #endregion
 
+        #region Constructors
         public Comment(int CommentId)
         {
             this.CommentID = CommentId;
@@ -67,6 +71,25 @@ namespace InstagramPost.Components
             LastEdit = DateTime.Now;
             
         }
+        #endregion
+
+        #region DisLike Comment
+        public void DisLike(int UserId)
+        {
+            if (!DisLikes.Contains(UserId))    
+                DisLikes.Add(UserId);
+            
+            Likes.Remove(UserId);
+        }
+        #endregion
+
+        #region Delete Values Of Comment
+        public void DeleteValuesOfComment() 
+        { 
+            Likes.Clear(); DisLikes.Clear();
+            IsDeleted=true; CommentText = null;
+        }
+        #endregion
 
         #region Edit Comment
         public void EditComment(int UserId)
@@ -102,68 +125,42 @@ namespace InstagramPost.Components
         #endregion
 
         #region Get Value mathods
-        public int GetUserId() { return UserId; }
         public int GetCommentID() { return CommentID; }
-
         public bool GetHasReply() {  return HasReply; }
-
-        public bool GetIsDeleted() { return IsDeleted; }
-
         public int GetHierarchy() { return Hierarchy; }
+        public bool GetIsDeleted() { return IsDeleted; }
+        public int GetUserId() { return UserId; }
         #endregion
 
-        #region set values
-        
-        public void SetIsDeleted(bool IsDeleted) { this.IsDeleted = IsDeleted; }
-
-        public void SetHasReply(bool HasReply) { this.HasReply = HasReply; }
-
-        #endregion
-
-        #region Like Post
-        public void Like(int UserId)
+        #region Like Comment
+        public void LikeComment(int UserId)
         {
-       
             if (!Likes.Contains(UserId))
                 Likes.Add(UserId);
 
             DisLikes.Remove(UserId);
-
-
-        }
-        #endregion
-
-        #region DisLike Comment
-        public void DisLike(int UserId)
-        {
-            if (!DisLikes.Contains(UserId))    
-                DisLikes.Add(UserId);
-            
-            Likes.Remove(UserId);
         }
         #endregion
 
         #region PrintComment
         public void PrintComment() 
         {
-            
             for (int i = 0; i < Hierarchy; i++) 
                  Console.Write("     "); 
 
             if(IsDeleted)
             {
                 String DeleteText = "This comment is Deleted";
-
                 Console.WriteLine(DeleteText+"\n");
             }
             else
             {
                 String SpaceText = "                                             ";
-                String IdText = String.Format("({0}){1}", CommentID, CommentText);
+                String IdWithCommentText = String.Format("({0}){1}", CommentID, CommentText);
 
-                IdText += SpaceText.Substring(0,(45- (IdText.Length+ (5*Hierarchy) ))) ;
+                IdWithCommentText += SpaceText.Substring(0,(45- ( IdWithCommentText.Length+ (5*Hierarchy) ))) ;
 
-                Console.WriteLine(String.Format("{0} \t\t Like : {1} \tDisLike : {2}\n", IdText, Likes.Count, DisLikes.Count));
+                Console.WriteLine(String.Format("{0} \t\t Like : {1} \tDisLike : {2}\n", IdWithCommentText, Likes.Count, DisLikes.Count));
             }
 
             foreach(var Comment in Replies)
@@ -173,19 +170,17 @@ namespace InstagramPost.Components
         }
         #endregion
 
-        #region Delete values ofComment
-        public void DeleteValues() 
-        { 
-            Likes.Clear(); DisLikes.Clear();
-            IsDeleted=true; CommentText = null;
-        }
-        #endregion
-
         #region Reply of Comment
-        public void ReplyofComment(Comment Reply)
+        public void AddReplyofComment(Comment Reply)
         {
             Replies.Add(Reply);
         }
+        #endregion
+
+        #region set values
+        public void SetHasReply(bool HasReply) { this.HasReply = HasReply; }
+        public void SetIsDeleted(bool IsDeleted) { this.IsDeleted = IsDeleted; }
+
         #endregion
     }
 }

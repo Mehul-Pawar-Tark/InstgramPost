@@ -12,40 +12,51 @@ namespace InstagramPost.Features
     {
         public Login() { }
 
+        #region Authentication
         public User Authentication(Data data)
         {
-            try
+            bool IsValidUsernamePassword = true;
+            do
             {
-                Console.WriteLine("Enter Username = No for exit from Login page ");
-                Console.Write("Enter Username : ");
-                String UserName = Console.ReadLine();
-
-                if(UserName !="No")
+                try
                 {
-                    Console.Write("Enter Password : ");
-                    String Password = Console.ReadLine();
+                    Console.WriteLine("Enter Username = No for exit from Login page ");
+                    Console.Write("Enter Username : ");
+                    String UserName = Console.ReadLine();
 
-                    foreach(User user in data.GetUsers())
+                    if (UserName != "No")
                     {
-                        if(user.UserName == UserName && user.Password==Password) 
-                        {
-                            Console.Clear();
-                            return user;
-                        }
-                    }
+                        Console.Write("Enter Password : ");
+                        String Password = Console.ReadLine();
 
-                    Console.WriteLine("Youser Not Exist !!!!");
+                        foreach (User user in data.GetUsers())
+                        {
+                            if (user.UserName == UserName && user.Password == Password)
+                            {
+                                Console.Clear();
+                                return user;
+                            }
+                        }
+
+                        IsValidUsernamePassword = false;
+                        Console.WriteLine("Invalid User Name or Password  !!!!");
+                        Console.ReadLine();
+                        Console.Clear();
+                    }
+                    else
+                        IsValidUsernamePassword = true;
+                }
+                catch (Exception ex)
+                {
+                    IsValidUsernamePassword = false;
+                    Console.WriteLine(ex.Message);
                     Console.ReadLine();
                     Console.Clear();
                 }
-
-            }
-            catch (Exception ex) { }
-            { 
-                
-            }
+            } while (!IsValidUsernamePassword);
             return new User("No");
         }
+        #endregion
 
     }
 }
