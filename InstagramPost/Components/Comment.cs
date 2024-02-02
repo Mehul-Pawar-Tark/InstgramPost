@@ -145,22 +145,56 @@ namespace InstagramPost.Components
         #region PrintComment
         public void PrintComment() 
         {
-            for (int i = 0; i < Hierarchy; i++) 
-                 Console.Write("     "); 
-
+            // sepration is required here 
             if(IsDeleted)
             {
+                for (int i = 0; i < Hierarchy; i++) 
+                     Console.Write("     "); 
+
                 String DeleteText = "This comment is Deleted";
                 Console.WriteLine(DeleteText+"\n");
             }
             else
             {
+
                 String SpaceText = "                                             ";
-                String IdWithCommentText = String.Format("({0}){1}", CommentID, CommentText);
+                int hirarchyLength = (5 * Hierarchy);
+                String IdWithCommentText = String.Format("({0}) {1}", CommentID, CommentText);
 
-                IdWithCommentText += SpaceText.Substring(0,(45- ( IdWithCommentText.Length+ (5*Hierarchy) ))) ;
+                if(IdWithCommentText.Length + hirarchyLength <=45) 
+                {   
+                    for (int i = 0; i < Hierarchy; i++)
+                        Console.Write("     ");
 
-                Console.WriteLine(String.Format("{0} \t\t Like : {1} \tDisLike : {2}\n", IdWithCommentText, Likes.Count, DisLikes.Count));
+                    IdWithCommentText += SpaceText.Substring(0,(45- ( IdWithCommentText.Length+  hirarchyLength))) ;
+
+                    Console.WriteLine(String.Format("{0} \t\t Like : {1} \tDisLike : {2}\n", IdWithCommentText, Likes.Count, DisLikes.Count));
+                }
+                else
+                {
+                    int textLength = (45 - hirarchyLength);
+                    int lines = IdWithCommentText.Length / textLength;
+
+                    if (IdWithCommentText.Length % textLength != 0)
+                        lines++;
+
+                    
+                    for(int i=0;  i<lines; i++)
+                    {
+                        if(i==lines-1)
+                        {
+                            String text = IdWithCommentText.Substring(i * textLength);
+                            text += SpaceText.Substring(0,(45-(text.Length+hirarchyLength)));
+                            Console.WriteLine(String.Format("{0}{1} \t\t Like : {2} \tDisLike : {3}\n", SpaceText.Substring(0, hirarchyLength), text, Likes.Count, DisLikes.Count));
+                        }
+                        else
+                        {
+                            Console.WriteLine(String.Format("{0}{1}",SpaceText.Substring(0,hirarchyLength),IdWithCommentText.Substring(i*textLength,textLength)));
+                        }
+                    }
+
+
+                }
             }
 
             foreach(var Comment in Replies)

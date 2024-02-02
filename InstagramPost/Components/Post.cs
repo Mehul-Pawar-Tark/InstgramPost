@@ -277,7 +277,6 @@ namespace InstagramPost.Components
         #endregion
         
         #region GetTotalComments
-
         public int GetTotalComments()
         {
             return this.TotalComments;
